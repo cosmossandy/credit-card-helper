@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>信用卡消費最佳回饋查詢</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --gold: #ffd700;
+            --gold-bg: #fffdf0;
+            --silver: #c0c0c0;
+            --silver-bg: #f9f9f9;
+            --bronze: #cd7f32;
+            --bronze-bg: #fffbf5;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            line-height: 1.5;
+            padding-bottom: 50px; /* 增加底部留白 */
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        /* 我的信用卡列表 */
+        .my-cards-container {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        .my-cards-title {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .card-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .card-tag {
+            background: #eef2f3;
+            color: #555;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-tag::before {
+            content: '💳';
+            margin-right: 5px;
+        }
+
+        /* 篩選區塊 */
+        .selector-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        label {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            background-color: white;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.7-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right .7em top 50%;
+            background-size: .65em auto;
+        }
+
+        /* 結果區塊 */
+        .result-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 5px solid #ddd; /* 預設灰色邊條 */
+            transition: transform 0.2s;
+        }
+
+        .result-card:active {
+            transform: scale(0.98);
+        }
+
+        /* 排名樣式 */
+        .rank-1 {
+            border-left-color: var(--gold);
+            background: linear-gradient(to right, var(--gold-bg), #fff);
+        }
+        .rank-1 .rank-badge { background: var(--gold); color: #b4690e; }
+
+        .rank-2 {
+            border-left-color: var(--silver);
+            background: linear-gradient(to right, var(--silver-bg), #fff);
+        }
+        .rank-2 .rank-badge { background: var(--silver); color: #555; }
+
+        .rank-3 {
+            border-left-color: var(--bronze);
+            background: linear-gradient(to right, var(--bronze-bg), #fff);
+        }
+        .rank-3 .rank-badge { background: var(--bronze); color: white; }
+
+        /* 第4名以後樣式 */
+        .rank-other {
+            border-left-color: #95a5a6;
+        }
+        .rank-other .rank-badge { background: #95a5a6; color: white; }
+
+        .rank-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .card-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .rate {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #e74c3c;
+            margin-bottom: 8px;
+        }
+
+        .method {
+            font-size: 0.95rem;
+            color: #34495e;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .method span {
+            background: #e1f5fe;
+            color: #0277bd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 5px;
+            font-weight: bold;
+        }
+
+        .limit {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            border-top: 1px solid #eee;
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+
+        .limit strong {
+            color: #c0392b;
+        }
+
+        /* 底部提示 */
+        .footer-note {
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: #aaa;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>💳 刷哪張最划算？</h1>
+
+    <!-- 已持有信用卡 -->
+    <div class="my-cards-container">
+        <div class="my-cards-title">已登錄的卡片庫</div>
+        <div class="card-list">
+            <div class="card-tag">玉山 Unicard</div>
+            <div class="card-tag">永豐大戶</div>
+            <div class="card-tag">聯邦 LINE Bank</div>
+            <div class="card-tag">玉山 U Bear</div>
+            <div class="card-tag">台新</div>
+            <div class="card-tag">玉山 Pi</div>
+            <div class="card-tag">玉山熊本熊</div>
+        </div>
+    </div>
+
+    <!-- 選單區域 -->
+    <div class="selector-section">
+        <div>
+            <label for="category">1. 請選擇消費類別</label>
+            <select id="category" onchange="updateChannels()">
+                <option value="" disabled selected>-- 請選擇 --</option>
+                <option value="online">網購 / 電商平台</option>
+                <option value="retail">實體零售 / 超商 / 超市</option>
+                <option value="transport">交通 / 外送</option>
+                <option value="travel">旅遊 / 海外消費</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="channel">2. 請選擇消費通路</label>
+            <select id="channel" disabled onchange="showResults()">
+                <option value="" selected>-- 請先選擇類別 --</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 結果顯示區域 -->
+    <div id="resultArea" class="result-container">
+        <!-- 卡片會動態產生在這裡 -->
+    </div>
+
+    <div class="footer-note">
+        資料更新日：2025/11/22<br>
+        請依銀行最新公告權益為準
+    </div>
+
+    <script>
+        // 資料庫
+        const database = {
+            "online": {
+                "MOMO": [
+                    { card: "玉山 Unicard", rate: "6.5%", method: "選 LINE Pay", limit: "16,000" },
+                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "網購 10,000" },
+                    { card: "玉山 Unicard", rate: "3.5%", method: "直接刷卡", limit: "40,000" }
+                ],
+                "PChome": [
+                    { card: "玉山 Unicard", rate: "6.5%", method: "選 LINE Pay", limit: "16,000" },
+                    { card: "玉山 Pi", rate: "5%", method: "選 Pi 錢包", limit: "8,750" },
+                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "網購 10,000" }
+                ],
+                "蝦皮": [
+                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "網購 10,000" },
+                    { card: "玉山 Unicard", rate: "3.5%", method: "直接刷卡", limit: "40,000" },
+                    { card: "台新 (數趣刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
+                ],
+                "酷澎": [
+                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "網購 10,000" },
+                    { card: "台新 (數趣刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" },
+                    { card: "玉山 U Bear", rate: "3%", method: "直接刷卡", limit: "7,500" }
+                ],
+                "淘寶": [
+                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "網購 10,000" },
+                    { card: "玉山 U Bear", rate: "3%", method: "直接刷卡", limit: "7,500" }
+                ],
+                "Pinkoi": [
+                    { card: "永豐大戶", rate: "7%", method: "直接刷卡", limit: "6,000" },
+                    { card: "玉山 U Bear", rate: "3%", method: "直接刷卡", limit: "7,500" }
+                ],
+                "其他一般網購": [
+                    { card: "玉山 Unicard", rate: "6.5%", method: "若有 LINE Pay", limit: "16,000" },
+                    { card: "玉山 U Bear", rate: "3%", method: "直接刷卡", limit: "7,500" }
+                ]
+            },
+            "retail": {
+                "7-11 / 路易莎 / 新光三越 / 誠品": [
+                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,000" },
+                    { card: "永豐大戶", rate: "5%", method: "悠遊卡自動加值 (單筆 < 1000)", limit: "6,000" },
+                    { card: "台新 (Pay著刷)", rate: "3.8%", method: "綁台新Pay", limit: "無上限" }
+                ],
+                "全家 / 康是美 / 美廉社 / 京站": [
+                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,000" },
+                    { card: "玉山 Pi", rate: "5%", method: "綁 Pi 錢包", limit: "8,750" },
+                    { card: "永豐大戶", rate: "5%", method: "悠遊卡自動加值 (單筆 < 1000)", limit: "6,000" }
+                ],
+                "家樂福": [
+                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,000" },
+                    { card: "永豐大戶", rate: "5%", method: "悠遊卡自動加值 (單筆 < 1000)", limit: "6,000" },
+                    { card: "台新 (天天刷)", rate: "3.3%", method: "刷卡 (單筆 > 1000)", limit: "無上限" }
+                ],
+                "全聯": [
+                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay (若支援)", limit: "16,000" },
+                    { card: "永豐大戶", rate: "5%", method: "悠遊卡自動加值 (單筆 < 1000)", limit: "6,000" }
+                ],
+                "一般實體店 (餐廳/服飾)": [
+                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,000" },
+                    { card: "永豐大戶", rate: "5%", method: "悠遊卡 (單筆 < 1000)", limit: "6,000" },
+                    { card: "台新 (Pay著刷)", rate: "3.8%", method: "台灣Pay / TWQR", limit: "無上限" },
+                    { card: "玉山 Unicard", rate: "3.5%", method: "街口 / 悠遊付", limit: "4 萬" },
+                    { card: "永豐大戶", rate: "2%", method: "刷卡 / Apple Pay", limit: "30,000" }
+                ]
+            },
+            "transport": {
+                "Uber Eats": [
+                    { card: "玉山 Unicard", rate: "6.5%", method: "直接刷卡", limit: "16,000" },
+                    { card: "永豐大戶", rate: "5%", method: "直接刷卡", limit: "6,000" },
+                    { card: "台新 (好饗刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
+                ],
+                "Foodpanda": [
+                    { card: "永豐大戶", rate: "5%", method: "直接刷卡", limit: "6,000" },
+                    { card: "台新 (好饗刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" },
+                    { card: "玉山 U Bear", rate: "3%", method: "直接刷卡", limit: "7,500" }
+                ],
+                "Uber / USPACE": [
+                    { card: "永豐大戶", rate: "7%", method: "直接刷卡", limit: "6,000 (優先用)" },
+                    { card: "台新 (天天刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" },
+                    { card: "玉山 U Bear", rate: "3%", method: "直接刷卡", limit: "7,500" }
+                ],
+                "LINE GO": [
+                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,000" },
+                    { card: "台新 (天天刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
+                ],
+                "高鐵 (網路購票)": [
+                    { card: "台新 (天天刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" },
+                    { card: "玉山 U Bear", rate: "3%", method: "直接刷卡", limit: "7,500" }
+                ]
+            },
+            "travel": {
+                "Klook / Agoda": [
+                    { card: "永豐大戶", rate: "7%", method: "直接刷卡", limit: "6,000" },
+                    { card: "玉山 Unicard", rate: "3.5%", method: "直接刷卡", limit: "40,000" },
+                    { card: "台新 (玩旅刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
+                ],
+                "航空 / 訂房 / 旅行社": [
+                    { card: "永豐大戶", rate: "7%", method: "直接刷卡", limit: "6,000" },
+                    { card: "台新 (玩旅刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
+                ],
+                "日本實體消費": [
+                    { card: "玉山熊本熊", rate: "8.5%", method: "Apple Pay / SUICA", limit: "8,333" },
+                    { card: "玉山熊本熊", rate: "3.5%", method: "PayPay", limit: "3,333" },
+                    { card: "台新 (玩旅刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
+                ],
+                "其他海外實體": [
+                    { card: "台新 (玩旅刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" },
+                    { card: "永豐大戶", rate: "3%", method: "直接刷卡", limit: "30,000" },
+                    { card: "聯邦 LINE Bank", rate: "2.5%", method: "刷卡", limit: "無上限" }
+                ]
+            }
+        };
+
+        const categorySelect = document.getElementById('category');
+        const channelSelect = document.getElementById('channel');
+        const resultArea = document.getElementById('resultArea');
+
+        // 1. 當選擇類別變更時，更新通路選單
+        function updateChannels() {
+            const selectedCategory = categorySelect.value;
+            channelSelect.innerHTML = '<option value="" selected>-- 請選擇通路 --</option>';
+            
+            if (selectedCategory && database[selectedCategory]) {
+                const channels = Object.keys(database[selectedCategory]);
+                channels.forEach(channel => {
+                    const option = document.createElement('option');
+                    option.value = channel;
+                    option.textContent = channel;
+                    channelSelect.appendChild(option);
+                });
+                channelSelect.disabled = false;
+            } else {
+                channelSelect.disabled = true;
+            }
+            resultArea.innerHTML = ''; // 清空結果
+        }
+
+        // 2. 當選擇通路變更時，顯示結果
+        function showResults() {
+            const category = categorySelect.value;
+            const channel = channelSelect.value;
+            
+            resultArea.innerHTML = ''; // 清空舊結果
+
+            if (category && channel && database[category][channel]) {
+                const cards = database[category][channel];
+                
+                cards.forEach((item, index) => {
+                    // 決定排名樣式
+                    let rankClass = 'rank-other';
+                    let rankText = '';
+                    
+                    if (index === 0) { rankClass = 'rank-1'; rankText = '👑 首選推薦'; }
+                    else if (index === 1) { rankClass = 'rank-2'; rankText = '🥈 第二順位'; }
+                    else if (index === 2) { rankClass = 'rank-3'; rankText = '🥉 第三順位'; }
+                    else { rankText = `備案 ${index + 1}`; } // 第4名以後顯示備案
+                    
+                    const cardDiv = document.createElement('div');
+                    cardDiv.className = `result-card ${rankClass}`;
+                    
+                    cardDiv.innerHTML = `
+                        ${rankText ? `<div class="rank-badge">${rankText}</div>` : ''}
+                        <div class="card-name">${item.card}</div>
+                        <div class="rate">${item.rate}</div>
+                        <div class="method">支付：<span>${item.method}</span></div>
+                        <div class="limit">⚠️ 上限：<strong>${item.limit}</strong></div>
+                    `;
+                    
+                    resultArea.appendChild(cardDiv);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
