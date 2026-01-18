@@ -221,12 +221,12 @@
     <div class="my-cards-container">
         <div class="my-cards-title">已登錄的卡片庫</div>
         <div class="card-list">
-            <div class="card-tag">玉山 Unicard</div>
-            <div class="card-tag">永豐大戶</div>
+            <div class="card-tag">玉山 Unicard(任意選)</div>
+            <div class="card-tag">永豐大戶(大戶等級)</div>
             <div class="card-tag">聯邦 LINE Bank</div>
             <div class="card-tag">玉山 U Bear</div>
             <div class="card-tag">台新</div>
-            <div class="card-tag">玉山 Pi</div>
+            <div class="card-tag">玉山 PI</div>
             <div class="card-tag">玉山熊本熊</div>
         </div>
     </div>
@@ -241,6 +241,7 @@
                 <option value="retail">實體零售 / 超商 / 超市</option>
                 <option value="transport">交通 / 外送</option>
                 <option value="travel">旅遊 / 海外消費</option>
+                <option value="tools">工具平台</option>
             </select>
         </div>
 
@@ -258,119 +259,132 @@
     </div>
 
     <div class="footer-note">
-        資料更新日：2025/11/22<br>
+        資料更新日：2026/01/18<br>
         請依銀行最新公告權益為準
+        © 2026 Created by cosmossandy. All rights reserved.
     </div>
 
     <script>
         // 資料庫
         const database = {
             "online": {
-                "MOMO": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "選 LINE Pay", limit: "16,000" },
-                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "網購 10,000" },
+                "MOMO (有 LINE Pay)": [
+                    { card: "玉山 Unicard", rate: "6.5%", method: "選 LINE Pay", limit: "16,666" },
+                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "10,000" },
                     { card: "玉山 Unicard", rate: "3.5%", method: "直接刷卡", limit: "40,000" }
                 ],
-                "PChome": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "選 LINE Pay", limit: "16,000" },
-                    { card: "玉山 Pi", rate: "5%", method: "選 Pi 錢包", limit: "8,750" },
-                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "網購 10,000" }
+                "PChome (有 LINE Pay)": [
+                    { card: "玉山 Unicard", rate: "6.5%", method: "選 LINE Pay", limit: "16,666" },
+                    { card: "玉山 PI", rate: "5%", method: "選 PI 錢包", limit: "8,750" },
+                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "10,000" }
                 ],
-                "蝦皮": [
-                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "網購 10,000" },
+                "蝦皮 (無 LINE Pay)": [
+                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "10,000" },
                     { card: "玉山 Unicard", rate: "3.5%", method: "直接刷卡", limit: "40,000" },
+                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" }
+                ],
+                "酷澎 (無 LINE Pay)": [
+                    { card: "玉山 Unicard", rate: "3.5%", method: "直接刷卡", limit: "40,000" },
+                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "10,000" },
+                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" }
+                ],
+                "淘寶 (屬國外消費)": [
+                    { card: "永豐大戶", rate: "4.5%", method: "直接刷卡", limit: "16,000 (共用)" },
+                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "10,000" },
                     { card: "台新 (數趣刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
                 ],
-                "酷澎": [
-                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "網購 10,000" },
-                    { card: "台新 (數趣刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" },
-                    { card: "玉山 U Bear", rate: "3%", method: "直接刷卡", limit: "7,500" }
-                ],
-                "淘寶": [
-                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "網購 10,000" },
-                    { card: "玉山 U Bear", rate: "3%", method: "直接刷卡", limit: "7,500" }
-                ],
-                "Pinkoi": [
-                    { card: "永豐大戶", rate: "7%", method: "直接刷卡", limit: "6,000" },
+                "Pinkoi (無 LINE Pay)": [
+                    { card: "玉山 Unicard", rate: "3.5%", method: "選悠遊付", limit: "40,000" },
+                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" },
                     { card: "玉山 U Bear", rate: "3%", method: "直接刷卡", limit: "7,500" }
                 ],
                 "其他一般網購": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "若有 LINE Pay", limit: "16,000" },
-                    { card: "玉山 U Bear", rate: "3%", method: "直接刷卡", limit: "7,500" }
+                    { card: "玉山 Unicard", rate: "6.5%", method: "若有 LINE Pay", limit: "16,666" },
+                    { card: "玉山 Unicard", rate: "3.5%", method: "街口/悠遊付", limit: "40,000" },
+                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" }
                 ]
             },
             "retail": {
-                "7-11 / 路易莎 / 新光三越 / 誠品": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,000" },
-                    { card: "永豐大戶", rate: "5%", method: "悠遊卡自動加值 (單筆 < 1000)", limit: "6,000" },
-                    { card: "台新 (Pay著刷)", rate: "3.8%", method: "綁台新Pay", limit: "無上限" }
+                "7-11": [
+                    { card: "台新 (Pay著刷)", rate: "3.8%", method: "綁台新Pay", limit: "無上限" },
+                    { card: "玉山 Unicard", rate: "3.5%", method: "街口 / 悠遊付", limit: "40,000" },
+                    { card: "永豐大戶", rate: "3%", method: "悠遊卡自動加值", limit: "3,333" }
                 ],
-                "全家 / 康是美 / 美廉社 / 京站": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,000" },
+                "路易莎 / 新光三越 / 誠品": [
+                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,666" },
+                    { card: "台新 (Pay著刷)", rate: "3.8%", method: "綁台新Pay", limit: "無上限" },
+                    { card: "玉山 Unicard", rate: "3.5%", method: "街口 / 悠遊付", limit: "40,000" }
+                ],
+                "全家": [
                     { card: "玉山 Pi", rate: "5%", method: "綁 Pi 錢包", limit: "8,750" },
-                    { card: "永豐大戶", rate: "5%", method: "悠遊卡自動加值 (單筆 < 1000)", limit: "6,000" }
+                    { card: "台新 (Pay著刷)", rate: "3.8%", method: "綁台新Pay", limit: "無上限" },
+                    { card: "玉山 Unicard", rate: "3.5%", method: "街口 / 悠遊付", limit: "40,000" }
                 ],
-                "家樂福": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,000" },
-                    { card: "永豐大戶", rate: "5%", method: "悠遊卡自動加值 (單筆 < 1000)", limit: "6,000" },
-                    { card: "台新 (天天刷)", rate: "3.3%", method: "刷卡 (單筆 > 1000)", limit: "無上限" }
+                "康是美 / 美廉社 / 京站": [
+                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,666" },
+                    { card: "玉山 Pi", rate: "5%", method: "綁 Pi 錢包", limit: "8,750" },
+                    { card: "玉山 Unicard", rate: "3.5%", method: "街口 / 悠遊付", limit: "40,000" }
                 ],
                 "全聯": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay (若支援)", limit: "16,000" },
-                    { card: "永豐大戶", rate: "5%", method: "悠遊卡自動加值 (單筆 < 1000)", limit: "6,000" }
+                    { card: "永豐大戶", rate: "3%", method: "悠遊卡自動加值", limit: "3,333" }
                 ],
                 "一般實體店 (餐廳/服飾)": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,000" },
-                    { card: "永豐大戶", rate: "5%", method: "悠遊卡 (單筆 < 1000)", limit: "6,000" },
+                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,666" },
                     { card: "台新 (Pay著刷)", rate: "3.8%", method: "台灣Pay / TWQR", limit: "無上限" },
-                    { card: "玉山 Unicard", rate: "3.5%", method: "街口 / 悠遊付", limit: "4 萬" },
-                    { card: "永豐大戶", rate: "2%", method: "刷卡 / Apple Pay", limit: "30,000" }
+                    { card: "玉山 Unicard", rate: "3.5%", method: "街口 / 悠遊付", limit: "40,000" }
                 ]
             },
             "transport": {
                 "Uber Eats": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "直接刷卡", limit: "16,000" },
-                    { card: "永豐大戶", rate: "5%", method: "直接刷卡", limit: "6,000" },
+                    { card: "玉山 Unicard", rate: "6.5%", method: "直接刷卡", limit: "16,666" },
+                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" },
                     { card: "台新 (好饗刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
                 ],
-                "Foodpanda": [
-                    { card: "永豐大戶", rate: "5%", method: "直接刷卡", limit: "6,000" },
-                    { card: "台新 (好饗刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" },
-                    { card: "玉山 U Bear", rate: "3%", method: "直接刷卡", limit: "7,500" }
-                ],
-                "Uber / USPACE": [
-                    { card: "永豐大戶", rate: "7%", method: "直接刷卡", limit: "6,000 (優先用)" },
-                    { card: "台新 (天天刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" },
-                    { card: "玉山 U Bear", rate: "3%", method: "直接刷卡", limit: "7,500" }
-                ],
-                "LINE GO": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,000" },
+                "Uber (叫車) / USPACE": [
+                    { card: "玉山 Unicard", rate: "3.5%", method: "直接刷卡", limit: "40,000" },
+                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" },
                     { card: "台新 (天天刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
                 ],
-                "高鐵 (網路購票)": [
+                "LINE GO": [
+                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,666" },
+                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" },
+                    { card: "台新 (天天刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
+                ],
+                "高鐵": [
+                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" },
                     { card: "台新 (天天刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" },
-                    { card: "玉山 U Bear", rate: "3%", method: "直接刷卡", limit: "7,500" }
+                    { card: "玉山 U Bear", rate: "3%", method: "網路購票", limit: "7,500" }
                 ]
             },
             "travel": {
-                "Klook / Agoda": [
-                    { card: "永豐大戶", rate: "7%", method: "直接刷卡", limit: "6,000" },
+                "Klook": [
                     { card: "玉山 Unicard", rate: "3.5%", method: "直接刷卡", limit: "40,000" },
+                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" },
                     { card: "台新 (玩旅刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
                 ],
-                "航空 / 訂房 / 旅行社": [
-                    { card: "永豐大戶", rate: "7%", method: "直接刷卡", limit: "6,000" },
+                "台灣航空 / 訂房旅行": [
+                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" },
                     { card: "台新 (玩旅刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
                 ],
                 "日本實體消費": [
                     { card: "玉山熊本熊", rate: "8.5%", method: "Apple Pay / SUICA", limit: "8,333" },
-                    { card: "玉山熊本熊", rate: "3.5%", method: "PayPay", limit: "3,333" },
+                    { card: "玉山熊本熊", rate: "3.5%", method: "PayPay", limit: "2,857" },
                     { card: "台新 (玩旅刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
                 ],
                 "其他海外實體": [
+                    { card: "永豐大戶", rate: "4.5%", method: "直接刷卡", limit: "16,000 (共用)" },
                     { card: "台新 (玩旅刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" },
-                    { card: "永豐大戶", rate: "3%", method: "直接刷卡", limit: "30,000" },
-                    { card: "聯邦 LINE Bank", rate: "2.5%", method: "刷卡", limit: "無上限" }
+                    { card: "聯邦 LINE Bank", rate: "2.5%", method: "直接刷卡", limit: "無上限" }
+                ]
+            },
+            "tools": {
+                "LINE 官方帳號": [
+                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" }
+                ],
+                "其他海外工具平台": [
+                    { card: "永豐大戶", rate: "4.5%", method: "直接刷卡", limit: "16,000 (共用)" },
+                    { card: "台新 (玩旅刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" },
+                    { card: "聯邦 LINE Bank", rate: "2.5%", method: "直接刷卡", limit: "無上限" }
                 ]
             }
         };
