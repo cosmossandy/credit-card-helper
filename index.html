@@ -204,6 +204,97 @@
             color: #c0392b;
         }
 
+        /* 指定商店展開區塊 */
+        .stores-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 10px;
+            padding: 8px 14px;
+            border: 1px dashed #c0a44a;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #fffef5, #fef9e7);
+            color: #9a7d0a;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .stores-toggle:hover {
+            background: linear-gradient(135deg, #fef9e7, #fdf2d0);
+            border-color: #b8960f;
+        }
+
+        .stores-toggle .arrow {
+            transition: transform 0.3s;
+            display: inline-block;
+        }
+
+        .stores-toggle.open .arrow {
+            transform: rotate(180deg);
+        }
+
+        .stores-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            margin-top: 0;
+        }
+
+        .stores-panel.open {
+            margin-top: 10px;
+        }
+
+        .stores-inner {
+            background: #fafafa;
+            border-radius: 10px;
+            padding: 12px;
+            border: 1px solid #eee;
+        }
+
+        .store-group {
+            margin-bottom: 10px;
+        }
+
+        .store-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .store-group-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #555;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .store-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .store-chip {
+            background: #fff;
+            color: #444;
+            padding: 3px 9px;
+            border-radius: 14px;
+            font-size: 0.75rem;
+            border: 1px solid #ddd;
+            white-space: nowrap;
+            transition: background 0.15s;
+        }
+
+        .store-chip:hover {
+            background: #e8f6fd;
+            border-color: #b3ddf2;
+        }
+
         /* 底部提示 */
         .footer-note {
             margin-top: 30px;
@@ -336,7 +427,7 @@
             },
             "transport": {
                 "Uber Eats": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "直接刷卡", limit: "16,666" },
+                    { card: "玉山 Unicard", rate: "3.5%", method: "直接刷卡", limit: "16,666" },
                     { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" },
                     { card: "台新 (好饗刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
                 ],
@@ -346,7 +437,7 @@
                     { card: "台新 (天天刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
                 ],
                 "LINE GO": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,666" },
+                    { card: "玉山 Unicard", rate: "3.5%", method: "綁 LINE Pay", limit: "16,666" },
                     { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" },
                     { card: "台新 (天天刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
                 ],
@@ -367,9 +458,28 @@
                     { card: "台新 (玩旅刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
                 ],
                 "日本": [
-                    { card: "玉山熊本熊", rate: "8.5%", method: "Apple Pay / SUICA", limit: "8,333" },
-                    { card: "玉山熊本熊", rate: "3.5%", method: "PayPay", limit: "2,857" },
-                    { card: "台新 (玩旅刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
+                    { card: "玉山熊本熊", rate: "7%", method: "Apple Pay / SUICA", limit: "8,333", stores: {
+                        "🚃 交通卡儲值": ["SUICA", "PASMO", "ICOCA"],
+                        "🚗 自駕租車": ["TOYOTA Rent a Car", "Times Car Rental", "NIPPON RENT-A-CAR", "OTS租車", "ORIX租車"],
+                        "🚄 鐵路購票": ["JR鐵路公司"],
+                        "✈️ 航空公司": ["日本航空"],
+                        "🏨 住宿預訂": ["樂天旅遊", "東橫INN", "星野集團"],
+                        "🔌 家電": ["BicCamera", "Yodobashi"],
+                        "💊 藥妝": ["松本清", "唐吉軻德", "大國藥妝"],
+                        "🛍️ 生活雜貨": ["無印良品"],
+                        "🏬 購物商城": ["日本MITSUI購物園區"],
+                        "👕 服飾品牌": ["UNIQLO", "GU"],
+                        "🥩 燒肉": ["勝烈亭", "敘敘苑", "牛角", "力丸燒肉", "六歌仙燒肉"],
+                        "🍔 漢堡": ["Shake Shack"],
+                        "☕ 咖啡廳": ["DOUTOR Coffee", "Fuglen"],
+                        "🍶 居酒屋": ["鳥貴族"],
+                        "🍜 拉麵": ["一蘭拉麵"],
+                        "🍱 平價快餐": ["松屋", "SUKIYA"],
+                        "🍣 壽司": ["壽司郎", "藏壽司"],
+                        "🎢 樂園": ["東京迪士尼樂園", "東京華納兄弟哈利波特影城", "日本環球影城", "豪斯登堡", "九州非洲獅樂園", "名古屋樂高樂園", "吉伊卡哇樂園"]
+                    }},
+                    { card: "台新 (Pay著刷)", rate: "3.8%", method: "PayPay", limit: "無上限" },
+                    { card: "玉山熊本熊", rate: "3.5%", method: "PayPay", limit: "2,857" }
                 ],
                 "其他海外": [
                     { card: "永豐大戶", rate: "4.5%", method: "直接刷卡", limit: "16,000 (共用)" },
@@ -436,16 +546,50 @@
                     const cardDiv = document.createElement('div');
                     cardDiv.className = `result-card ${rankClass}`;
                     
+                    // 組合指定商店 HTML
+                    let storesHTML = '';
+                    if (item.stores) {
+                        const storeId = `stores-${index}`;
+                        let groupsHTML = '';
+                        for (const [groupLabel, shops] of Object.entries(item.stores)) {
+                            const chipsHTML = shops.map(s => `<span class="store-chip">${s}</span>`).join('');
+                            groupsHTML += `
+                                <div class="store-group">
+                                    <div class="store-group-label">${groupLabel}</div>
+                                    <div class="store-chips">${chipsHTML}</div>
+                                </div>`;
+                        }
+                        storesHTML = `
+                            <div class="stores-toggle" onclick="toggleStores('${storeId}', this)">
+                                📋 查看指定日本商店 <span class="arrow">▼</span>
+                            </div>
+                            <div class="stores-panel" id="${storeId}">
+                                <div class="stores-inner">${groupsHTML}</div>
+                            </div>`;
+                    }
+
                     cardDiv.innerHTML = `
                         ${rankText ? `<div class="rank-badge">${rankText}</div>` : ''}
                         <div class="card-name">${item.card}</div>
                         <div class="rate">${item.rate}</div>
                         <div class="method">支付：<span>${item.method}</span></div>
                         <div class="limit">⚠️ 上限：<strong>${item.limit}</strong></div>
+                        ${storesHTML}
                     `;
                     
                     resultArea.appendChild(cardDiv);
                 });
+            }
+        }
+        // 展開/收合指定商店
+        function toggleStores(id, toggleEl) {
+            const panel = document.getElementById(id);
+            const isOpen = panel.classList.toggle('open');
+            toggleEl.classList.toggle('open', isOpen);
+            if (isOpen) {
+                panel.style.maxHeight = panel.scrollHeight + 'px';
+            } else {
+                panel.style.maxHeight = '0';
             }
         }
     </script>
