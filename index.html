@@ -2,8 +2,8 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>信用卡消費最佳回饋查詢</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>信用卡消費最佳回饋查詢 v2</title>
     <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
     <link rel="shortcut icon" href="icon.png">
     <style>
@@ -20,46 +20,55 @@
             --bronze-bg: #fffbf5;
         }
 
+        * { box-sizing: border-box; }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             margin: 0;
-            padding: 20px;
+            padding: 16px;
+            padding-bottom: 60px;
             color: #333;
             line-height: 1.5;
-            padding-bottom: 50px; /* 增加底部留白 */
+            -webkit-tap-highlight-color: transparent;
         }
 
         h1 {
             text-align: center;
             color: var(--primary-color);
-            font-size: 1.5rem;
-            margin-bottom: 20px;
+            font-size: 1.4rem;
+            margin: 4px 0 16px;
         }
 
-        /* 我的信用卡列表 */
+        /* 我的卡片庫（可收合） */
         .my-cards-container {
             background: var(--card-bg);
-            padding: 15px;
+            padding: 12px 15px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 25px;
+            margin-bottom: 16px;
         }
-
         .my-cards-title {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #7f8c8d;
-            margin-bottom: 10px;
             text-align: center;
-        }
-
-        .card-list {
+            cursor: pointer;
+            user-select: none;
             display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+        }
+        .my-cards-title .arrow { transition: transform .3s; font-size: .7rem; }
+        .my-cards-title.open .arrow { transform: rotate(180deg); }
+        .card-list {
+            display: none;
             flex-wrap: wrap;
             justify-content: center;
             gap: 8px;
+            margin-top: 12px;
         }
-
+        .card-list.open { display: flex; }
         .card-tag {
             background: #eef2f3;
             color: #555;
@@ -67,537 +76,443 @@
             border-radius: 20px;
             font-size: 0.8rem;
             border: 1px solid #ddd;
-            display: flex;
-            align-items: center;
         }
+        .card-tag::before { content: '💳'; margin-right: 5px; }
 
-        .card-tag::before {
-            content: '💳';
-            margin-right: 5px;
-        }
-
-        /* 篩選區塊 */
-        .selector-section {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        label {
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        select {
+        /* 搜尋框 */
+        .search-wrap { position: relative; margin-bottom: 12px; }
+        #search {
             width: 100%;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 14px 40px 14px 16px;
+            border-radius: 12px;
             border: 1px solid #ccc;
-            font-size: 1rem;
-            background-color: white;
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.7-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat;
-            background-position: right .7em top 50%;
-            background-size: .65em auto;
+            font-size: 1.05rem;
+            background: #fff;
         }
+        #search:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(52,152,219,.15); }
+        .search-wrap .icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: #aaa; font-size: 1.1rem; pointer-events: none; }
+        .search-wrap .clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1.2rem; cursor: pointer; display: none; background:#eee; border-radius:50%; width:22px; height:22px; line-height:22px; text-align:center; }
 
-        /* 結果區塊 */
-        .result-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        /* 類別快選 chips */
+        .cat-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+        .cat-chip {
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 1px solid #d5dbdb;
+            background: #fff;
+            color: #555;
+            font-size: 0.9rem;
+            cursor: pointer;
+            user-select: none;
+            transition: all .15s;
         }
+        .cat-chip.active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+
+        /* 通路 chips */
+        .channel-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+        .channel-chip {
+            padding: 9px 14px;
+            border-radius: 10px;
+            border: 1px solid #dfe6e9;
+            background: #fff;
+            font-size: 0.92rem;
+            cursor: pointer;
+            user-select: none;
+            transition: all .15s;
+        }
+        .channel-chip:active { transform: scale(.97); }
+        .channel-chip.selected { background: #eaf4fb; border-color: var(--accent-color); color: #21618c; font-weight: 600; }
+        .no-match { color: #999; font-size: .9rem; padding: 4px 2px; }
+
+        /* 結果 */
+        .result-container { display: flex; flex-direction: column; gap: 14px; }
+        .result-head { font-size: .95rem; color:#555; font-weight:600; margin-bottom:-2px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+        .result-head .tip { font-weight:400; color:#8e44ad; background:#f5eef8; padding:2px 8px; border-radius:6px; font-size:.8rem; }
 
         .result-card {
             background: white;
-            border-radius: 10px;
-            padding: 15px;
+            border-radius: 12px;
+            padding: 14px 15px;
             position: relative;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-left: 5px solid #ddd; /* 預設灰色邊條 */
-            transition: transform 0.2s;
+            border-left: 5px solid #ddd;
         }
-
-        .result-card:active {
-            transform: scale(0.98);
-        }
-
-        /* 排名樣式 */
-        .rank-1 {
-            border-left-color: var(--gold);
-            background: linear-gradient(to right, var(--gold-bg), #fff);
-        }
+        .rank-1 { border-left-color: var(--gold); background: linear-gradient(to right, var(--gold-bg), #fff); }
         .rank-1 .rank-badge { background: var(--gold); color: #b4690e; }
-
-        .rank-2 {
-            border-left-color: var(--silver);
-            background: linear-gradient(to right, var(--silver-bg), #fff);
-        }
+        .rank-2 { border-left-color: var(--silver); background: linear-gradient(to right, var(--silver-bg), #fff); }
         .rank-2 .rank-badge { background: var(--silver); color: #555; }
-
-        .rank-3 {
-            border-left-color: var(--bronze);
-            background: linear-gradient(to right, var(--bronze-bg), #fff);
-        }
+        .rank-3 { border-left-color: var(--bronze); background: linear-gradient(to right, var(--bronze-bg), #fff); }
         .rank-3 .rank-badge { background: var(--bronze); color: white; }
-
-        /* 第4名以後樣式 */
-        .rank-other {
-            border-left-color: #95a5a6;
-        }
+        .rank-other { border-left-color: #95a5a6; }
         .rank-other .rank-badge { background: #95a5a6; color: white; }
 
-        .rank-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
+        .rank-badge { position: absolute; top: 12px; right: 12px; padding: 4px 8px; border-radius: 4px; font-size: 0.78rem; font-weight: bold; }
+        .card-name { font-size: 1.1rem; font-weight: bold; margin-bottom: 4px; color: #2c3e50; padding-right: 76px; }
+        .card-name .net { font-size: .72rem; font-weight: 600; color:#7f8c8d; background:#ecf0f1; border-radius:4px; padding:1px 6px; margin-left:6px; vertical-align:middle;}
+        .rate { font-size: 1.7rem; font-weight: 800; color: #e74c3c; line-height: 1.1; }
+        .netrate { font-size: .82rem; color: #c0392b; margin: 2px 0 6px; }
+        .netrate.nofee { color: #16a085; }
+        .method { font-size: 0.95rem; color: #34495e; margin-bottom: 6px; }
+        .method span { background: #e1f5fe; color: #0277bd; padding: 2px 7px; border-radius: 4px; margin-left: 4px; font-weight: bold; }
+        .meta-row { display:flex; flex-wrap:wrap; gap:6px; border-top: 1px solid #eee; padding-top: 8px; margin-top: 4px; }
+        .pill { font-size: .78rem; padding: 3px 8px; border-radius: 6px; background:#f4f6f7; color:#566573; }
+        .pill strong { color:#c0392b; }
+        .exp { font-size:.78rem; padding:3px 8px; border-radius:6px; font-weight:600; }
+        .exp.ok { background:#eafaf1; color:#1e8449; }
+        .exp.soon { background:#fef5e7; color:#b9770e; }
+        .exp.expired { background:#fdedec; color:#c0392b; }
+        .exp.caveat { background:#fef9e7; color:#9a7d0a; }
 
-        .card-name {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #2c3e50;
-        }
+        /* 指定商店 */
+        .stores-toggle { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:10px; padding:8px 14px; border:1px dashed #c0a44a; border-radius:8px; background:linear-gradient(135deg,#fffef5,#fef9e7); color:#9a7d0a; font-size:.85rem; font-weight:600; cursor:pointer; user-select:none;}
+        .stores-toggle .arrow { transition: transform .3s; }
+        .stores-toggle.open .arrow { transform: rotate(180deg); }
+        .stores-panel { max-height:0; overflow:hidden; transition:max-height .4s ease; }
+        .stores-panel.open { margin-top:10px; }
+        .stores-inner { background:#fafafa; border-radius:10px; padding:12px; border:1px solid #eee; }
+        .store-group { margin-bottom:10px; } .store-group:last-child{margin-bottom:0;}
+        .store-group-label { font-size:.78rem; font-weight:700; color:#555; margin-bottom:5px;}
+        .store-chips { display:flex; flex-wrap:wrap; gap:5px; }
+        .store-chip { background:#fff; color:#444; padding:3px 9px; border-radius:14px; font-size:.75rem; border:1px solid #ddd; white-space:nowrap;}
 
-        .rate {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #e74c3c;
-            margin-bottom: 8px;
-        }
+        /* 額度監控 */
+        .monitor { margin-top: 24px; }
+        .monitor-toggle { width:100%; text-align:left; padding:12px 15px; border-radius:12px; border:1px solid #e0e0e0; background:#fff; font-size:.95rem; font-weight:700; color:#2c3e50; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
+        .monitor-toggle .arrow { transition: transform .3s; font-size:.8rem;}
+        .monitor-toggle.open .arrow { transform: rotate(180deg);}
+        .monitor-body { display:none; margin-top:10px; background:#fff; border-radius:12px; padding:6px 12px 12px; box-shadow:0 2px 8px rgba(0,0,0,.05);}
+        .monitor-body.open { display:block; }
+        .mcard { border-bottom:1px solid #f0f0f0; padding:11px 2px; }
+        .mcard:last-child { border-bottom:none; }
+        .mcard-top { display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
+        .mcard-name { font-weight:700; color:#2c3e50; font-size:.95rem;}
+        .mcard-cap { font-size:.9rem; color:#c0392b; font-weight:700; white-space:nowrap;}
+        .mcard-strat { font-size:.8rem; color:#7f8c8d; margin-top:3px; }
+        .mcard-badges { margin-top:5px; display:flex; gap:6px; flex-wrap:wrap; }
 
-        .method {
-            font-size: 0.95rem;
-            color: #34495e;
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-        }
-
-        .method span {
-            background: #e1f5fe;
-            color: #0277bd;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 5px;
-            font-weight: bold;
-        }
-
-        .limit {
-            font-size: 0.85rem;
-            color: #7f8c8d;
-            border-top: 1px solid #eee;
-            padding-top: 8px;
-            margin-top: 8px;
-        }
-
-        .limit strong {
-            color: #c0392b;
-        }
-
-        /* 指定商店展開區塊 */
-        .stores-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            margin-top: 10px;
-            padding: 8px 14px;
-            border: 1px dashed #c0a44a;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #fffef5, #fef9e7);
-            color: #9a7d0a;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            user-select: none;
-        }
-
-        .stores-toggle:hover {
-            background: linear-gradient(135deg, #fef9e7, #fdf2d0);
-            border-color: #b8960f;
-        }
-
-        .stores-toggle .arrow {
-            transition: transform 0.3s;
-            display: inline-block;
-        }
-
-        .stores-toggle.open .arrow {
-            transform: rotate(180deg);
-        }
-
-        .stores-panel {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease;
-            margin-top: 0;
-        }
-
-        .stores-panel.open {
-            margin-top: 10px;
-        }
-
-        .stores-inner {
-            background: #fafafa;
-            border-radius: 10px;
-            padding: 12px;
-            border: 1px solid #eee;
-        }
-
-        .store-group {
-            margin-bottom: 10px;
-        }
-
-        .store-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .store-group-label {
-            font-size: 0.78rem;
-            font-weight: 700;
-            color: #555;
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .store-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-
-        .store-chip {
-            background: #fff;
-            color: #444;
-            padding: 3px 9px;
-            border-radius: 14px;
-            font-size: 0.75rem;
-            border: 1px solid #ddd;
-            white-space: nowrap;
-            transition: background 0.15s;
-        }
-
-        .store-chip:hover {
-            background: #e8f6fd;
-            border-color: #b3ddf2;
-        }
-
-        /* 底部提示 */
-        .footer-note {
-            margin-top: 30px;
-            font-size: 0.8rem;
-            color: #aaa;
-            text-align: center;
-        }
+        .footer-note { margin-top: 28px; font-size: 0.78rem; color: #aaa; text-align: center; line-height:1.7;}
+        .footer-note .warn { color:#c0392b; }
     </style>
 </head>
 <body>
 
     <h1>💳 刷哪張最划算？</h1>
 
-    <!-- 已持有信用卡 -->
     <div class="my-cards-container">
-        <div class="my-cards-title">已登錄的卡片庫</div>
-        <div class="card-list">
-            <div class="card-tag">玉山 Unicard(任意選)</div>
-            <div class="card-tag">永豐大戶(大戶等級)</div>
-            <div class="card-tag">聯邦 LINE Bank</div>
-            <div class="card-tag">玉山 U Bear</div>
-            <div class="card-tag">台新 Richart</div>
-            <div class="card-tag">玉山 PI</div>
-            <div class="card-tag">玉山熊本熊</div>
+        <div class="my-cards-title" id="myCardsToggle" onclick="toggleMyCards()">
+            我的卡片庫（7 張）<span class="arrow">▼</span>
         </div>
+        <div class="card-list" id="myCardsList"></div>
     </div>
 
-    <!-- 選單區域 -->
-    <div class="selector-section">
-        <div>
-            <label for="category">1. 請選擇消費類別</label>
-            <select id="category" onchange="updateChannels()">
-                <option value="" disabled selected>-- 請選擇 --</option>
-                <option value="online">網購 / 電商平台</option>
-                <option value="retail">實體零售 / 超商 / 超市</option>
-                <option value="transport">交通 / 外送</option>
-                <option value="travel">旅遊 / 海外消費</option>
-                <option value="tools">工具平台</option>
-            </select>
-        </div>
-
-        <div>
-            <label for="channel">2. 請選擇消費通路</label>
-            <select id="channel" disabled onchange="showResults()">
-                <option value="" selected>-- 請先選擇類別 --</option>
-            </select>
-        </div>
+    <!-- 搜尋 -->
+    <div class="search-wrap">
+        <input type="text" id="search" placeholder="🔍 直接搜尋通路（例：全家、淘寶、Uber、日本）" autocomplete="off"
+               oninput="onSearch()">
+        <span class="icon" id="searchIcon">🔍</span>
+        <span class="clear" id="searchClear" onclick="clearSearch()">✕</span>
     </div>
 
-    <!-- 結果顯示區域 -->
-    <div id="resultArea" class="result-container">
-        <!-- 卡片會動態產生在這裡 -->
+    <!-- 類別快選 -->
+    <div class="cat-chips" id="catChips"></div>
+
+    <!-- 通路快選 -->
+    <div class="channel-chips" id="channelChips"></div>
+
+    <!-- 結果 -->
+    <div id="resultArea" class="result-container"></div>
+
+    <!-- 額度監控 -->
+    <div class="monitor">
+        <button class="monitor-toggle" id="monitorToggle" onclick="toggleMonitor()">
+            <span>⚠️ 每月額度監控與補位策略</span><span class="arrow">▼</span>
+        </button>
+        <div class="monitor-body" id="monitorBody"></div>
     </div>
 
     <div class="footer-note">
-        資料更新日：2026/01/18<br>
-        請依銀行最新公告權益為準<br>
-        © 2026 Created by cosmossandy. All rights reserved.<br>
+        資料同步自 Notion「信用卡消費回饋懶人包」・更新日：2026/07/06<br>
+        Unicard 加碼、熊本熊 8.5%／PayPay 均已確認有效至 2026/12/31<br>
+        請依銀行最新公告權益為準　©️ 2026 cosmossandy
     </div>
 
     <script>
-        // 資料庫
-        const database = {
-            "online": {
-                "MOMO (有 LINE Pay)": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "選 LINE Pay", limit: "16,666" },
-                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "10,000" },
-                    { card: "玉山 Unicard", rate: "3.5%", method: "直接刷卡", limit: "40,000" }
-                ],
-                "PChome (有 LINE Pay)": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "選 LINE Pay", limit: "16,666" },
-                    { card: "玉山 PI", rate: "5%", method: "選 PI 錢包", limit: "8,750" },
-                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "10,000" }
-                ],
-                "蝦皮 (無 LINE Pay)": [
-                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "10,000" },
-                    { card: "玉山 Unicard", rate: "3.5%", method: "直接刷卡", limit: "40,000" },
-                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" }
-                ],
-                "酷澎 (有 LINE Pay)": [
-                    { card: "玉山 Unicard", rate: "3.5%", method: "直接刷卡", limit: "40,000" },
-                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "10,000" },
-                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" }
-                ],
-                "淘寶 (屬國外消費)": [
-                    { card: "永豐大戶", rate: "4.5%", method: "直接刷卡", limit: "16,000 (共用)" },
-                    { card: "聯邦 LINE Bank", rate: "4%", method: "直接刷卡", limit: "10,000" },
-                    { card: "台新 (數趣刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
-                ],
-                "Pinkoi (無 LINE Pay)": [
-                    { card: "玉山 Unicard", rate: "3.5%", method: "選悠遊付", limit: "40,000" },
-                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" },
-                    { card: "玉山 U Bear", rate: "3%", method: "直接刷卡", limit: "7,500" }
-                ],
-                "其他一般網購": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "若有 LINE Pay", limit: "16,666" },
-                    { card: "玉山 Unicard", rate: "3.5%", method: "街口/悠遊付", limit: "40,000" },
-                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" }
-                ]
-            },
-            "retail": {
-                "7-11": [
-                    { card: "台新 (Pay著刷)", rate: "3.8%", method: "綁台新Pay", limit: "無上限" },
-                    { card: "玉山 Unicard", rate: "3.5%", method: "街口 / 悠遊付", limit: "40,000" },
-                    { card: "永豐大戶", rate: "3%", method: "悠遊卡自動加值", limit: "3,333" }
-                ],
-                "路易莎 / 新光三越 / 誠品": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,666" },
-                    { card: "台新 (Pay著刷)", rate: "3.8%", method: "綁台新Pay", limit: "無上限" },
-                    { card: "玉山 Unicard", rate: "3.5%", method: "街口 / 悠遊付", limit: "40,000" }
-                ],
-                "全家": [
-                    { card: "玉山 PI", rate: "5%", method: "綁 PI 錢包", limit: "8,750" },
-                    { card: "台新 (Pay著刷)", rate: "3.8%", method: "綁台新Pay", limit: "無上限" },
-                    { card: "玉山 Unicard", rate: "3.5%", method: "街口 / 悠遊付", limit: "40,000" }
-                ],
-                "康是美 / 美廉社 / 京站": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,666" },
-                    { card: "玉山 PI", rate: "5%", method: "綁 PI 錢包", limit: "8,750" },
-                    { card: "玉山 Unicard", rate: "3.5%", method: "街口 / 悠遊付", limit: "40,000" }
-                ],
-                "全聯": [
-                    { card: "永豐大戶", rate: "3%", method: "悠遊卡自動加值", limit: "3,333" }
-                ],
-                "一般實體店 (餐廳/服飾)": [
-                    { card: "玉山 Unicard", rate: "6.5%", method: "綁 LINE Pay", limit: "16,666" },
-                    { card: "台新 (Pay著刷)", rate: "3.8%", method: "台灣Pay / TWQR", limit: "無上限" },
-                    { card: "玉山 Unicard", rate: "3.5%", method: "街口 / 悠遊付", limit: "40,000" }
-                ]
-            },
-            "transport": {
-                "Uber Eats": [
-                    { card: "玉山 Unicard", rate: "3.5%", method: "直接刷卡", limit: "16,666" },
-                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" },
-                    { card: "台新 (好饗刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
-                ],
-                "Uber": [
-                    { card: "玉山 Unicard", rate: "3.5%", method: "直接刷卡", limit: "40,000" },
-                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" },
-                    { card: "台新 (天天刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
-                ],
-                "LINE GO": [
-                    { card: "玉山 Unicard", rate: "3.5%", method: "綁 LINE Pay", limit: "16,666" },
-                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" },
-                    { card: "台新 (天天刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
-                ],
-                "高鐵": [
-                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" },
-                    { card: "台新 (天天刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" },
-                    { card: "玉山 U Bear", rate: "3%", method: "網路購票", limit: "7,500" }
-                ]
-            },
-            "travel": {
-                "Klook": [
-                    { card: "玉山 Unicard", rate: "3.5%", method: "直接刷卡", limit: "40,000" },
-                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" },
-                    { card: "台新 (玩旅刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
-                ],
-                "台灣航空 / 訂房旅行": [
-                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" },
-                    { card: "台新 (玩旅刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" }
-                ],
-                "日本": [
-                    { card: "玉山熊本熊", rate: "7%", method: "Apple Pay / SUICA", limit: "8,333", stores: {
-                        "🚃 交通卡儲值": ["SUICA", "PASMO", "ICOCA"],
-                        "🚗 自駕租車": ["TOYOTA Rent a Car", "Times Car Rental", "NIPPON RENT-A-CAR", "OTS租車", "ORIX租車"],
-                        "🚄 鐵路購票": ["JR鐵路公司"],
-                        "✈️ 航空公司": ["日本航空"],
-                        "🏨 住宿預訂": ["樂天旅遊", "東橫INN", "星野集團"],
-                        "🔌 家電": ["BicCamera", "Yodobashi"],
-                        "💊 藥妝": ["松本清", "唐吉軻德", "大國藥妝"],
-                        "🛍️ 生活雜貨": ["無印良品"],
-                        "🏬 購物商城": ["日本MITSUI購物園區"],
-                        "👕 服飾品牌": ["UNIQLO", "GU"],
-                        "🥩 燒肉": ["勝烈亭", "敘敘苑", "牛角", "力丸燒肉", "六歌仙燒肉"],
-                        "🍔 漢堡": ["Shake Shack"],
-                        "☕ 咖啡廳": ["DOUTOR Coffee", "Fuglen"],
-                        "🍶 居酒屋": ["鳥貴族"],
-                        "🍜 拉麵": ["一蘭拉麵"],
-                        "🍱 平價快餐": ["松屋", "SUKIYA"],
-                        "🍣 壽司": ["壽司郎", "藏壽司"],
-                        "🎢 樂園": ["東京迪士尼樂園", "東京華納兄弟哈利波特影城", "日本環球影城", "豪斯登堡", "九州非洲獅樂園", "名古屋樂高樂園", "吉伊卡哇樂園"]
-                    }},
-                    { card: "台新 (Pay著刷)", rate: "3.8%", method: "PayPay", limit: "無上限" },
-                    { card: "玉山熊本熊", rate: "3.5%", method: "PayPay", limit: "2,857" }
-                ],
-                "其他海外": [
-                    { card: "永豐大戶", rate: "4.5%", method: "直接刷卡", limit: "16,000 (共用)" },
-                    { card: "台新 (玩旅刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" },
-                    { card: "聯邦 LINE Bank", rate: "2.5%", method: "直接刷卡", limit: "無上限" }
-                ]
-            },
-            "tools": {
-                "LINE 官方帳號": [
-                    { card: "永豐大戶", rate: "3.5%", method: "直接刷卡", limit: "16,000 (共用)" }
-                ],
-                "其他海外工具平台": [
-                    { card: "永豐大戶", rate: "4.5%", method: "直接刷卡", limit: "16,000 (共用)" },
-                    { card: "台新 (玩旅刷)", rate: "3.3%", method: "直接刷卡", limit: "無上限" },
-                    { card: "聯邦 LINE Bank", rate: "2.5%", method: "直接刷卡", limit: "無上限" }
-                ]
-            }
+        const TODAY = '2026-07-06';
+
+        /* ---------- 卡片主檔（單一來源，避免各通路重複維護而失準） ---------- */
+        const cards = {
+            lineBank:  { name:'聯邦 LINE Bank', net:'JCB',    cap:10000, expiry:'2026-07-31', strat:'指定網購 4%：蝦皮／酷澎／MOMO／PChome／淘寶。' },
+            taishin:   { name:'台新 Richart',   net:'VISA',   cap:null,  expiry:'2026-09-30', expNote:'LINE Pay 加碼', strat:'最終防線：無上限。所有卡刷爆時用它（全家／7-11／TWQR／台灣 Pay）。' },
+            unicard:   { name:'玉山 Unicard',   net:'VISA',   cap:40000, expiry:'2026-12-31', strat:'方案二「任意選」自選 8 家享 3.5%（其餘一般消費 1%）。已選：LINE Pay／蝦皮／momo／Uber／Uber Eats／街口／悠遊付／玉山Wallet電支。' },
+            dawho:     { name:'永豐 大戶',      net:'VISA',   cap:16000, expiry:'2026-12-31', strat:'國內 3.5%／海外 4.5%：淘寶與海外主力（一般消費也吃這 16,000 額度）。' },
+            dawhoEasy: { name:'永豐 大戶',      net:'VISA',   cap:3333,  expiry:'2026-12-31', strat:'悠遊卡自動加值 3%：僅全聯、超商小額，一下就滿。' },
+            uBear:     { name:'玉山 U Bear',    net:'Master', cap:7500,  expiry:'2026-08-31', strat:'指定網路 3%：LINE Pay／街口／momo／蝦皮／淘寶／線上訂房／高鐵。' },
+            pi:        { name:'玉山 Pi 拍錢包', net:'Master', cap:2000,  expiry:'2026-08-31', strat:'全家 5%：綁 Pi 錢包，額度很小。' },
+            kumamon:   { name:'玉山 熊本熊',    net:'JCB',    cap:8333,  expiry:'2026-12-31', strat:'日本 8.5%：SUICA 儲值／JR／UNIQLO／無印／唐吉軻德等指定店。' },
+            kumamonPP: { name:'玉山 熊本熊',    net:'JCB',    cap:2857,  expiry:'2026-12-31', strat:'日本 PayPay 3.5%：台幣計價、免海外手續費。' }
         };
 
-        const categorySelect = document.getElementById('category');
-        const channelSelect = document.getElementById('channel');
-        const resultArea = document.getElementById('resultArea');
+        const myCards = ['玉山 Unicard(任意選)','永豐大戶(大戶等級)','聯邦 LINE Bank','玉山 U Bear','台新 Richart','玉山 Pi 拍錢包','玉山 熊本熊'];
 
-        // 1. 當選擇類別變更時，更新通路選單
-        function updateChannels() {
-            const selectedCategory = categorySelect.value;
-            channelSelect.innerHTML = '<option value="" selected>-- 請選擇通路 --</option>';
-            
-            if (selectedCategory && database[selectedCategory]) {
-                const channels = Object.keys(database[selectedCategory]);
-                channels.forEach(channel => {
-                    const option = document.createElement('option');
-                    option.value = channel;
-                    option.textContent = channel;
-                    channelSelect.appendChild(option);
-                });
-                channelSelect.disabled = false;
-            } else {
-                channelSelect.disabled = true;
+        const jpStores = {
+            "🚃 交通卡儲值": ["SUICA", "PASMO", "ICOCA"],
+            "🚄 鐵路 / 航空": ["JR 鐵路", "日本航空"],
+            "🚗 租車": ["TOYOTA Rent a Car", "Times CAR RENTAL", "NIPPON RENT-A-CAR"],
+            "🏨 住宿": ["樂天旅遊", "東橫INN", "APA"],
+            "🔌 家電": ["BicCamera", "Yodobashi"],
+            "💊 藥妝 / 生活": ["松本清", "唐吉軻德", "大國藥妝", "無印良品", "niko and…", "3 coins"],
+            "👕 服飾": ["UNIQLO", "GU"],
+            "🍜 餐飲": ["一蘭", "松屋", "SUKIYA", "敘敘苑", "牛角", "Shake Shack", "壽司郎", "藏壽司", "DOUTOR"],
+            "🎢 樂園": ["東京迪士尼", "日本環球影城", "豪斯登堡", "富士急", "哈利波特影城", "名古屋樂高樂園"]
+        };
+
+        /* ---------- 類別與通路（同步 Notion，rate 為名目回饋，foreign=需扣1.5%海外手續費） ---------- */
+        const categories = [
+            { id:'online',    icon:'💻', name:'網購 / 電商' },
+            { id:'retail',    icon:'🛒', name:'實體 / 超商 / 超市' },
+            { id:'transport', icon:'🛵', name:'交通 / 外送' },
+            { id:'travel',    icon:'✈️', name:'旅遊 / 海外' },
+            { id:'tools',     icon:'🧰', name:'工具平台' }
+        ];
+
+        const channels = [
+            // ---- 網購 ----
+            { cat:'online', name:'MOMO', kw:['momo','購物'], tip:'單筆 >1 萬改直刷 Unicard 3.5%（額度 4 萬），避免聯邦爆額',
+              entries:[ {c:'lineBank',rate:4,m:'直接刷卡'},{c:'taishin',rate:3.8,m:'Pay 著刷（LINE Pay）'},{c:'unicard',rate:3.5,m:'LINE Pay'} ] },
+            { cat:'online', name:'PChome', kw:['pchome','購物'],
+              entries:[ {c:'lineBank',rate:4,m:'直接刷卡'},{c:'taishin',rate:3.8,m:'Pay 著刷（LINE Pay）'},{c:'unicard',rate:3.5,m:'LINE Pay'} ] },
+            { cat:'online', name:'酷澎 Coupang', kw:['酷澎','coupang'],
+              entries:[ {c:'lineBank',rate:4,m:'直接刷卡'},{c:'taishin',rate:3.8,m:'Pay 著刷（LINE Pay）'},{c:'unicard',rate:3.5,m:'LINE Pay'} ] },
+            { cat:'online', name:'蝦皮', kw:['蝦皮','shopee'],
+              entries:[ {c:'lineBank',rate:4,m:'直接刷卡'},{c:'unicard',rate:3.5,m:'直接刷卡'},{c:'dawho',rate:3.5,m:'直接刷卡'} ] },
+            { cat:'online', name:'淘寶（國外消費）', kw:['淘寶','taobao','天貓'],
+              entries:[ {c:'dawho',rate:4.5,m:'直接刷卡',foreign:true},{c:'lineBank',rate:4,m:'直接刷卡',foreign:true},{c:'taishin',rate:3.3,m:'數趣刷',foreign:true} ] },
+            { cat:'online', name:'Pinkoi', kw:['pinkoi'],
+              entries:[ {c:'unicard',rate:3.5,m:'悠遊付'},{c:'dawho',rate:3.5,m:'直接刷卡'},{c:'uBear',rate:3,m:'直接刷卡'} ] },
+            { cat:'online', name:'其他網路購物', kw:['其他','線上','網購','網路'],
+              entries:[ {c:'taishin',rate:3.8,m:'Pay 著刷（LINE Pay）'},{c:'unicard',rate:3.5,m:'街口／悠遊付／LINE Pay'},{c:'dawho',rate:3.5,m:'直接刷卡'} ] },
+
+            // ---- 實體 ----
+            { cat:'retail', name:'全家', kw:['全家','familymart','超商'],
+              entries:[ {c:'pi',rate:5,m:'Pi 錢包'},{c:'taishin',rate:3.8,m:'Pay 著刷'},{c:'unicard',rate:3.5,m:'悠遊付／街口'} ] },
+            { cat:'retail', name:'全聯', kw:['全聯','pxmart','超市'],
+              entries:[ {c:'dawhoEasy',rate:3,m:'悠遊卡自動加值'} ] },
+            { cat:'retail', name:'其他實體店（含 7-11、百貨、餐廳、服飾）', kw:['7-11','7-eleven','超商','便利商店','新光三越','誠品','百貨','路易莎','星巴克','康是美','美廉社','餐廳','服飾','咖啡','實體'],
+              entries:[ {c:'taishin',rate:3.8,m:'Pay 著刷'},{c:'unicard',rate:3.5,m:'LINE Pay／悠遊付／街口'},{c:'dawho',rate:3.5,m:'直接刷卡'} ] },
+
+            // ---- 交通 / 外送 ----
+            { cat:'transport', name:'Uber Eats', kw:['ubereats','uber eats','外送','foodpanda'],
+              entries:[ {c:'unicard',rate:3.5,m:'直接刷卡'},{c:'dawho',rate:3.5,m:'直接刷卡'},{c:'taishin',rate:3.3,m:'好饗刷'} ] },
+            { cat:'transport', name:'Uber', kw:['uber','計程車','叫車'],
+              entries:[ {c:'unicard',rate:3.5,m:'直接刷卡'},{c:'dawho',rate:3.5,m:'直接刷卡'},{c:'taishin',rate:3.3,m:'天天刷'} ] },
+            { cat:'transport', name:'LINE GO', kw:['line go','linego','叫車'],
+              entries:[ {c:'unicard',rate:3.5,m:'LINE Pay'},{c:'dawho',rate:3.5,m:'直接刷卡'},{c:'taishin',rate:3.3,m:'天天刷'} ] },
+            { cat:'transport', name:'高鐵', kw:['高鐵','thsr','火車','台鐵'],
+              entries:[ {c:'dawho',rate:3.5,m:'直接刷卡'},{c:'taishin',rate:3.3,m:'天天刷'},{c:'uBear',rate:3,m:'網路購票'} ] },
+
+            // ---- 旅遊 / 海外 ----
+            { cat:'travel', name:'Klook', kw:['klook','kkday','行程','票券'],
+              entries:[ {c:'unicard',rate:3.5,m:'直接刷卡'},{c:'dawho',rate:3.5,m:'直接刷卡'},{c:'taishin',rate:3.3,m:'玩旅刷'} ] },
+            { cat:'travel', name:'航空 / 訂房旅行', kw:['航空','訂房','旅行','機票','飯店','agoda','booking'],
+              entries:[ {c:'dawho',rate:3.5,m:'直接刷卡'},{c:'taishin',rate:3.3,m:'玩旅刷'} ] },
+            { cat:'travel', name:'日本', kw:['日本','japan','東京','大阪','suica','paypay'],
+              entries:[ {c:'kumamon',rate:8.5,m:'指定商店／SUICA 儲值',foreign:true,stores:true},
+                        {c:'taishin',rate:3.8,m:'Pay 著刷',noFee:true},
+                        {c:'kumamonPP',rate:3.5,m:'PayPay',noFee:true} ] },
+            { cat:'travel', name:'其他海外', kw:['海外','國外','歐美','韓國'],
+              entries:[ {c:'dawho',rate:4.5,m:'直接刷卡',foreign:true},{c:'taishin',rate:3.3,m:'玩旅刷',foreign:true},{c:'lineBank',rate:2.5,m:'直接刷卡',foreign:true} ] },
+
+            // ---- 工具平台 ----
+            { cat:'tools', name:'LINE 官方帳號', kw:['line','官方帳號','貼圖'],
+              entries:[ {c:'dawho',rate:3.5,m:'直接刷卡'} ] },
+            { cat:'tools', name:'其他海外工具平台', kw:['工具','訂閱','app','海外'],
+              entries:[ {c:'dawho',rate:4.5,m:'直接刷卡',foreign:true},{c:'taishin',rate:3.3,m:'玩旅刷',foreign:true},{c:'lineBank',rate:2.5,m:'直接刷卡',foreign:true} ] }
+        ];
+
+        /* ---------- 狀態 ---------- */
+        let activeCat = 'all';
+        let searchText = '';
+        let selectedChannel = null;
+
+        /* ---------- 工具函式 ---------- */
+        function fmtDate(iso){ return iso ? iso.replace(/-/g,'/') : ''; }
+        function capText(cap){ return cap === null ? '無上限' : 'NT$' + cap.toLocaleString(); }
+
+        function expiryBadge(card){
+            if(!card.expiry){
+                return card.caveat ? `<span class="exp caveat">⚠️ ${card.caveat}</span>` : '';
             }
-            resultArea.innerHTML = ''; // 清空結果
+            const d = new Date(card.expiry + 'T23:59:59');
+            const today = new Date(TODAY + 'T00:00:00');
+            const days = Math.round((d - today) / 86400000);
+            const label = (card.expNote ? card.expNote + ' ' : '') + fmtDate(card.expiry);
+            if(days < 0)  return `<span class="exp expired">🔴 已過期（${label}）需確認續辦</span>`;
+            if(days <= 31) return `<span class="exp soon">🟠 ${label} 到期（剩 ${days} 天）</span>`;
+            return `<span class="exp ok">🟢 有效至 ${label}</span>`;
         }
 
-        // 2. 當選擇通路變更時，顯示結果
-        function showResults() {
-            const category = categorySelect.value;
-            const channel = channelSelect.value;
-            
-            resultArea.innerHTML = ''; // 清空舊結果
+        /* ---------- 我的卡片庫 ---------- */
+        function toggleMyCards(){
+            document.getElementById('myCardsList').classList.toggle('open');
+            document.getElementById('myCardsToggle').classList.toggle('open');
+        }
+        (function initMyCards(){
+            document.getElementById('myCardsList').innerHTML =
+                myCards.map(n => `<div class="card-tag">${n}</div>`).join('');
+        })();
 
-            if (category && channel && database[category][channel]) {
-                const cards = database[category][channel];
-                
-                cards.forEach((item, index) => {
-                    // 決定排名樣式
-                    let rankClass = 'rank-other';
-                    let rankText = '';
-                    
-                    if (index === 0) { rankClass = 'rank-1'; rankText = '👑 首選推薦'; }
-                    else if (index === 1) { rankClass = 'rank-2'; rankText = '🥈 第二順位'; }
-                    else if (index === 2) { rankClass = 'rank-3'; rankText = '🥉 第三順位'; }
-                    else { rankText = `備案 ${index + 1}`; } // 第4名以後顯示備案
-                    
-                    const cardDiv = document.createElement('div');
-                    cardDiv.className = `result-card ${rankClass}`;
-                    
-                    // 組合指定商店 HTML
-                    let storesHTML = '';
-                    if (item.stores) {
-                        const storeId = `stores-${index}`;
-                        let groupsHTML = '';
-                        for (const [groupLabel, shops] of Object.entries(item.stores)) {
-                            const chipsHTML = shops.map(s => `<span class="store-chip">${s}</span>`).join('');
-                            groupsHTML += `
-                                <div class="store-group">
-                                    <div class="store-group-label">${groupLabel}</div>
-                                    <div class="store-chips">${chipsHTML}</div>
-                                </div>`;
-                        }
-                        storesHTML = `
-                            <div class="stores-toggle" onclick="toggleStores('${storeId}', this)">
-                                📋 查看指定日本商店 <span class="arrow">▼</span>
-                            </div>
-                            <div class="stores-panel" id="${storeId}">
-                                <div class="stores-inner">${groupsHTML}</div>
-                            </div>`;
-                    }
+        /* ---------- 類別 chips ---------- */
+        (function initCatChips(){
+            const el = document.getElementById('catChips');
+            let html = `<div class="cat-chip active" data-cat="all" onclick="selectCat('all')">全部</div>`;
+            html += categories.map(c =>
+                `<div class="cat-chip" data-cat="${c.id}" onclick="selectCat('${c.id}')">${c.icon} ${c.name}</div>`).join('');
+            el.innerHTML = html;
+        })();
 
-                    cardDiv.innerHTML = `
-                        ${rankText ? `<div class="rank-badge">${rankText}</div>` : ''}
-                        <div class="card-name">${item.card}</div>
-                        <div class="rate">${item.rate}</div>
-                        <div class="method">支付：<span>${item.method}</span></div>
-                        <div class="limit">⚠️ 上限：<strong>${item.limit}</strong></div>
-                        ${storesHTML}
-                    `;
-                    
-                    resultArea.appendChild(cardDiv);
-                });
+        function selectCat(cat){
+            activeCat = cat;
+            document.querySelectorAll('.cat-chip').forEach(ch =>
+                ch.classList.toggle('active', ch.dataset.cat === cat));
+            renderChannels();
+        }
+
+        /* ---------- 搜尋 ---------- */
+        function onSearch(){
+            searchText = document.getElementById('search').value.trim().toLowerCase();
+            document.getElementById('searchClear').style.display = searchText ? 'block' : 'none';
+            document.getElementById('searchIcon').style.display = searchText ? 'none' : 'block';
+            renderChannels();
+        }
+        function clearSearch(){
+            document.getElementById('search').value = '';
+            onSearch();
+        }
+
+        /* ---------- 通路 chips ---------- */
+        function channelMatches(ch){
+            if(activeCat !== 'all' && ch.cat !== activeCat) return false;
+            if(!searchText) return true;
+            const hay = (ch.name + ' ' + (ch.kw||[]).join(' ')).toLowerCase();
+            return hay.includes(searchText);
+        }
+
+        function renderChannels(){
+            const list = channels.filter(channelMatches);
+            const el = document.getElementById('channelChips');
+            if(list.length === 0){
+                el.innerHTML = `<div class="no-match">找不到符合「${searchText}」的通路，試試「全家」「淘寶」「日本」…</div>`;
+                document.getElementById('resultArea').innerHTML = '';
+                return;
+            }
+            el.innerHTML = list.map(ch => {
+                const sel = (ch === selectedChannel) ? ' selected' : '';
+                const idx = channels.indexOf(ch);
+                return `<div class="channel-chip${sel}" onclick="selectChannel(${idx})">${ch.name}</div>`;
+            }).join('');
+
+            // 搜尋只剩一個結果時自動展開，加速查詢
+            if(searchText && list.length === 1){
+                selectChannel(channels.indexOf(list[0]));
+            } else if(selectedChannel && !list.includes(selectedChannel)){
+                document.getElementById('resultArea').innerHTML = '';
+                selectedChannel = null;
             }
         }
-        // 展開/收合指定商店
-        function toggleStores(id, toggleEl) {
+
+        function selectChannel(idx){
+            selectedChannel = channels[idx];
+            document.querySelectorAll('.channel-chip').forEach(c => c.classList.remove('selected'));
+            renderChannels();
+            renderResults(selectedChannel);
+            document.getElementById('resultArea').scrollIntoView({behavior:'smooth', block:'nearest'});
+        }
+
+        /* ---------- 結果卡片 ---------- */
+        function rateBlock(e){
+            let html = `<div class="rate">${e.rate}%</div>`;
+            if(e.foreign){
+                const net = (e.rate - 1.5).toFixed(1);
+                html += `<div class="netrate">海外實拿約 <b>${net}%</b>（已扣 1.5% 手續費）</div>`;
+            } else if(e.noFee){
+                html += `<div class="netrate nofee">✅ 台幣計價・免 1.5% 海外手續費</div>`;
+            }
+            return html;
+        }
+
+        function renderResults(channel){
+            const area = document.getElementById('resultArea');
+            let head = `<div class="result-head">${channel.name} — 建議刷卡順序`;
+            if(channel.tip) head += `<span class="tip">💡 ${channel.tip}</span>`;
+            head += `</div>`;
+
+            const cardsHtml = channel.entries.map((e, i) => {
+                const card = cards[e.c];
+                let rankClass = 'rank-other', rankText = `備案 ${i+1}`;
+                if(i===0){ rankClass='rank-1'; rankText='👑 首選'; }
+                else if(i===1){ rankClass='rank-2'; rankText='🥈 第二'; }
+                else if(i===2){ rankClass='rank-3'; rankText='🥉 第三'; }
+
+                let storesHtml = '';
+                if(e.stores){
+                    const id = `stores-${i}`;
+                    const groups = Object.entries(jpStores).map(([label, shops]) =>
+                        `<div class="store-group"><div class="store-group-label">${label}</div>
+                         <div class="store-chips">${shops.map(s=>`<span class="store-chip">${s}</span>`).join('')}</div></div>`).join('');
+                    storesHtml = `<div class="stores-toggle" onclick="toggleStores('${id}', this)">📋 查看日本指定商店 <span class="arrow">▼</span></div>
+                                  <div class="stores-panel" id="${id}"><div class="stores-inner">${groups}</div></div>`;
+                }
+
+                return `<div class="result-card ${rankClass}">
+                    <div class="rank-badge">${rankText}</div>
+                    <div class="card-name">${card.name}<span class="net">${card.net}</span></div>
+                    ${rateBlock(e)}
+                    <div class="method">支付：<span>${e.m}</span></div>
+                    <div class="meta-row">
+                        <span class="pill">月刷卡上限 <strong>${capText(card.cap)}</strong></span>
+                        ${expiryBadge(card)}
+                    </div>
+                    ${storesHtml}
+                </div>`;
+            }).join('');
+
+            area.innerHTML = head + cardsHtml;
+        }
+
+        function toggleStores(id, el){
             const panel = document.getElementById(id);
-            const isOpen = panel.classList.toggle('open');
-            toggleEl.classList.toggle('open', isOpen);
-            if (isOpen) {
-                panel.style.maxHeight = panel.scrollHeight + 'px';
-            } else {
-                panel.style.maxHeight = '0';
-            }
+            const open = panel.classList.toggle('open');
+            el.classList.toggle('open', open);
+            panel.style.maxHeight = open ? panel.scrollHeight + 'px' : '0';
         }
+
+        /* ---------- 額度監控 ---------- */
+        function toggleMonitor(){
+            document.getElementById('monitorBody').classList.toggle('open');
+            document.getElementById('monitorToggle').classList.toggle('open');
+        }
+        (function initMonitor(){
+            // 依月上限由小到大排序，越容易刷爆的越前面
+            const order = Object.keys(cards).sort((a,b) => {
+                const ca = cards[a].cap === null ? Infinity : cards[a].cap;
+                const cb = cards[b].cap === null ? Infinity : cards[b].cap;
+                return ca - cb;
+            });
+            document.getElementById('monitorBody').innerHTML = order.map(k => {
+                const c = cards[k];
+                return `<div class="mcard">
+                    <div class="mcard-top">
+                        <span class="mcard-name">${c.name}<span class="net" style="font-size:.7rem;color:#95a5a6;margin-left:5px;">${c.net}</span></span>
+                        <span class="mcard-cap">${capText(c.cap)}/月</span>
+                    </div>
+                    <div class="mcard-strat">${c.strat}</div>
+                    <div class="mcard-badges">${expiryBadge(c)}</div>
+                </div>`;
+            }).join('');
+        })();
+
+        /* ---------- 初始 ---------- */
+        renderChannels();
     </script>
 </body>
-
 </html>
-
-
-
-
-
